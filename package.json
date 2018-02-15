@@ -1,5 +1,5 @@
 {
-  "name": "my-resume-2",
+  "name": "@xch/resume",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
