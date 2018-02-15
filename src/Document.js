@@ -1,40 +1,24 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from '@xch/class-names';
-import injectSheet from 'react-jss';
 
 import Page from './Page';
 
-const documentStyles = {
-  root: {
-    padding: '1px',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    '& > $page': {
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginTop: '2em',
-      marginBottom: '2em',
-      boxShadow: `rgba(0, 0, 0, 0.19) 0px ${10/16}em ${30/16}em, rgba(0, 0, 0, 0.23) 0px ${6/16}em ${10/16}em`,
-      borderRadius: `${2/16}em`,
-    },
-  },
-  page: {
-    boxSizing: 'content-box',
-    width: '8.5in',
-    height: '11in',
-    paddingTop: '0.5in',
-    paddingRight: '1in',
-    paddingBottom: '0.5in',
-    paddingLeft: '1in',
-    backgroundColor: 'white',
-  }
-};
-
 class Document extends React.PureComponent {
+  static propTypes = {
+    className: PropTypes.string,
+    pageClassName: PropTypes.string,
+    header: PropTypes.any,
+    footer: PropTypes.any,
+    children: PropTypes.any,
+  };
+
   render () {
     const {
-      classes,
       className,
+      pageClassName,
+      header,
+      footer,
       children,
     } = this.props;
 
@@ -43,11 +27,11 @@ class Document extends React.PureComponent {
     return (
       <div
         className={classNames(
-          classes.root,
+          'document',
           className,
         )}
       >
-        {childItems.map((child, index) => {
+        {childItems.map((child, index, list) => {
           if (child.type !== Page) {
             return child;
           }
@@ -55,10 +39,13 @@ class Document extends React.PureComponent {
           return React.createElement(child.type, {
             ...child.props,
             className: classNames(
-                classes.page,
-                child.props.className,
+              child.props.className,
+              pageClassName,
             ),
-            pageNumber: index,
+            documentHeader: header,
+            documentFooter: footer,
+            pageNumber: index + 1,
+            pageCount: list.length,
             key: index,
           });
         })}
@@ -67,4 +54,4 @@ class Document extends React.PureComponent {
   }
 }
 
-export default injectSheet(documentStyles)(Document);
+export default Document;
