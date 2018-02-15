@@ -2,6 +2,7 @@
   "name": "@xch/resume",
   "version": "0.1.0",
   "private": true,
+  "repository": "https://github.com/Zodiase/Resume",
   "dependencies": {
     "@xch/class-names": "^0.1.1",
     "react": "^16.2.0",
