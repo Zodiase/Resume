@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import classNames from '@xch/class-names';
 import injectSheet from 'react-jss';
 
-const pageStyles = {
+const PageStyles = (theme) => ({
   root: {
     boxSizing: 'content-box',
     backgroundColor: 'white',
@@ -20,7 +20,7 @@ const pageStyles = {
   footer: {
     flex: '0 0 auto',
   },
-};
+});
 
 class Page extends React.PureComponent {
   static propTypes = {
@@ -89,4 +89,4 @@ class Page extends React.PureComponent {
   }
 }
 
-export default injectSheet(pageStyles)(Page);
+export default injectSheet(PageStyles)(Page);
