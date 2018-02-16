@@ -125,7 +125,7 @@ class Page extends React.Component {
         child,
         {
           key: index,
-          // Could `ref` be not a HTMLElement?
+          //! Could `ref` be not a HTMLElement?
           ref: (ref) => this._childElementRefs[index] = ref,
         },
       );

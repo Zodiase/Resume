@@ -1,5 +1,5 @@
 import * as url from 'url';
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import classNames from '@xch/class-names';
 import injectSheet from 'react-jss';
 import moment from 'moment';
@@ -63,7 +63,7 @@ const AppStyles = (theme) => ({
       extend: '_subtleLink',
     },
   },
-  contentSectionTitle: {
+  sectionTitle: {
     color: theme.primaryColor,
   },
   experienceItem: {
@@ -204,14 +204,12 @@ class App extends Component {
         </section>
 
         {profile.skills && (
-          <section
-            id="skills"
-            className="content-section"
-          >
+          <Fragment>
             <h2
+              id="skills"
               className={classNames(
-                'content-section__title',
-                this.styleClasses.contentSectionTitle,
+                'section__title',
+                this.styleClasses.sectionTitle,
               )}
             >Skills</h2>
 
@@ -226,23 +224,21 @@ class App extends Component {
                 },
               )}
             </div>
-          </section>
+          </Fragment>
         )}
 
         {profile.experiences && (
-          <section
-            id="experiences"
-            className="content-section"
-          >
+          <Fragment>
             <h2
+              id="experiences"
               className={classNames(
-                'content-section__title',
-                this.styleClasses.contentSectionTitle,
+                'section__title',
+                this.styleClasses.sectionTitle,
               )}
             >Experience</h2>
 
             {profile.experiences.map(this.renderExperienceItem)}
-          </section>
+          </Fragment>
         )}
 
         <div className="App">

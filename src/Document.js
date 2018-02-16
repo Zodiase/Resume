@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from '@xch/class-names';
 import injectSheet from 'react-jss';
@@ -36,14 +36,40 @@ class Document extends React.Component {
     children: PropTypes.any,
   };
 
+  static getChildrenInArray (children) {
+    let childArray = children ? makeArray(children) : [];
+
+    // Expand React.Fragment.
+    childArray = childArray.reduce((acc, child) => {
+      if (Array.isArray(child)) {
+        return [
+          ...acc,
+          ...child,
+        ];
+      }
+
+      if (child.type === Fragment) {
+        return [
+          ...acc,
+          ...Document.getChildrenInArray(child.props.children),
+        ];
+      }
+
+      return [
+        ...acc,
+        child,
+      ];
+    }, []);
+
+    return childArray;
+  }
+
   static getInitialPageWithChildren (children) {
-    const childrensByPage = [];
+    const childrensByPage = [
+      Document.getChildrenInArray(children),
+    ];
 
-    if (children) {
-      const childArray = makeArray(children);
-
-      childrensByPage.push(childArray);
-    }
+    // Debug here to check if children passed to `Page` look normal.
 
     return childrensByPage;
   }
@@ -58,6 +84,12 @@ class Document extends React.Component {
     };
 
     /**
+     * Stores a list of children. (Mainly because prop `children` might not be an array.)
+     * @type {Array<HTMLElement>}
+     */
+    this._childArray = Document.getChildrenInArray(props.children);
+
+    /**
      * Stores references to rendered page components.
      * @type {Array<Page>}
      */
@@ -69,6 +101,7 @@ class Document extends React.Component {
   }
 
   componentWillReceiveProps (nextProps) {
+    this._childArray = Document.getChildrenInArray(nextProps.children);
     this.resetPagination(nextProps.children);
   }
 
@@ -130,7 +163,7 @@ class Document extends React.Component {
       ...childrenInNextPage,
     ];
 
-    const maxStablizeTries = makeArray(this.props.children).length;
+    const maxStablizeTries = this._childArray.length;
 
     this._stablizePageLoopCount = (this._stablizePageLoopCount || 0) + 1;
 
