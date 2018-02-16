@@ -25,19 +25,18 @@ const AppStyles = (theme) => ({
     },
   },
   document: {
-    '& .profile__name': {
-      fontFamily: theme.sansSerifFontFamily,
-      fontSize: '2.5em',
-      fontWeight: '900',
-      marginTop: '0.2em',
-      marginBottom: '0.2em',
-    },
     '& .profile__site, & .profile__email, & .profile__phone': {
       fontFamily: theme.serifFontFamily,
       color: theme.secondaryInfoColor,
       '& a': {
         extend: '_subtleLink',
       },
+    },
+    '& .experience__location': {
+      fontSize: '0.7em',
+    },
+    '& .experience__title': {
+      fontSize: '0.8em',
     },
     '& .experience__employer + .experience__location::before': {
       content: '", "',
@@ -47,10 +46,11 @@ const AppStyles = (theme) => ({
       display: 'inline-block',
       width: '0.5em',
       height: '0',
-      marginLeft: '0.5em',
-      marginRight: '0.5em',
-      marginBottom: '0.3em',
-      borderTop: '0.1em solid',
+      marginLeft: '0.3em',
+      marginRight: '0.3em',
+      marginBottom: '0.26em',
+      borderTop: '0',
+      borderBottom: '0.15em solid',
     },
     '& .experience__duties': {
       fontFamily: theme.serifFontFamily,
@@ -60,9 +60,9 @@ const AppStyles = (theme) => ({
     width: '8.5in',
     height: '11in',
     paddingTop: '0.5in',
-    paddingRight: '1in',
+    paddingRight: '0.5in',
     paddingBottom: '0.5in',
-    paddingLeft: '1in',
+    paddingLeft: '0.5in',
     fontFamily: theme.sansSerifFontFamily,
   },
   headerBar: {
@@ -79,8 +79,29 @@ const AppStyles = (theme) => ({
       extend: '_subtleLink',
     },
   },
-  sectionTitle: {
+  h1: {
+    fontFamily: theme.sansSerifFontFamily,
+    fontSize: '2.5em',
+    fontWeight: '900',
+    marginTop: '0.4em',
+    marginBottom: '0.3em',
+    color: theme.blackColor,
+  },
+  h2: {
+    fontFamily: theme.sansSerifFontFamily,
+    fontSize: '1.5em',
+    fontWeight: '700',
+    marginTop: '0.4em',
+    marginBottom: '0.3em',
     color: theme.primaryColor,
+  },
+  h3: {
+    fontFamily: theme.sansSerifFontFamily,
+    fontSize: '1.1em',
+    fontWeight: '500',
+    marginTop: '0.4em',
+    marginBottom: '0.3em',
+    color: theme.blackColor,
   },
 });
 
@@ -132,16 +153,23 @@ class App extends Component {
 
     return (
       <Fragment key={index}>
-        <h3 className="experience__name">
+        <h3
+          className={classNames(
+            'experience__name',
+            this.styleClasses.h3
+          )}
+        >
           <span className="experience__employer">{employer}</span>
           <span className="experience__location">{location}</span>
           <span className="experience__title">{title}</span>
         </h3>
+
         <div className="experience__timespan">
           <span className="experience__timespan__start">{startDateString}</span>
           <span>&nbsp;-&nbsp;</span>
           <span className="experience__timespan__end">{endDateString || 'Present'}</span>
         </div>
+
         <div
           className="experience__duties"
           dangerouslySetInnerHTML={{__html: marked(dutyRemarks)}}
@@ -162,7 +190,10 @@ class App extends Component {
         footer={this.documentFooter}
       >
         <section id="basic-info">
-          <h1 id="profile-name" className="profile__name">
+          <h1
+            id="profile-name"
+            className={this.styleClasses.h1}
+          >
             <span className="profile__firstname">{profile.firstName}&nbsp;</span>
             {profile.middleName && (
               <span className="profile__middlename">{profile.middleName}&nbsp;</span>
@@ -180,11 +211,16 @@ class App extends Component {
               id="skills"
               className={classNames(
                 'section__title',
-                this.styleClasses.sectionTitle,
+                this.styleClasses.h2,
               )}
             >Skills</h2>
 
-            <h3 className="skillset-title">Web Development</h3>
+            <h3
+              className={classNames(
+                'skillset-title',
+                this.styleClasses.h3,
+              )}
+            >Web Development</h3>
             {profile.skills.pick(
               ['Web'],
               {
@@ -202,7 +238,7 @@ class App extends Component {
               id="experiences"
               className={classNames(
                 'section__title',
-                this.styleClasses.sectionTitle,
+                this.styleClasses.h2,
               )}
             >Experience</h2>
 
