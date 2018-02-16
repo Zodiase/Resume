@@ -158,7 +158,7 @@ class App extends Component {
       location,
       startDate,
       endDate,
-      duties,
+      dutyRemarks,
     } = expItem;
 
     const [
@@ -187,7 +187,7 @@ class App extends Component {
         </div>
         <div
           className="experience__duties"
-          dangerouslySetInnerHTML={{__html: marked(duties)}}
+          dangerouslySetInnerHTML={{__html: marked(dutyRemarks)}}
         />
       </div>
     );
@@ -217,6 +217,32 @@ class App extends Component {
             <div className="profile__phone">{profile.phone}</div>
             <div className="profile__email"><a href={`mailto:${profile.email}`}>{profile.email}</a></div>
           </section>
+
+          {profile.skills && (
+            <section
+              id="skills"
+              className="content-section"
+            >
+              <h2
+                className={classNames(
+                  'content-section__title',
+                  this.styleClasses.contentSectionTitle,
+                )}
+              >Skills</h2>
+
+              <div className="skill-set">
+                <div className="skill-set__title">Web Development</div>
+                {profile.skills.pick(
+                  ['Web'],
+                  {
+                    excludes: [
+                      'Server',
+                    ],
+                  },
+                )}
+              </div>
+            </section>
+          )}
 
           {profile.experiences && (
             <section

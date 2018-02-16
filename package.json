@@ -5,6 +5,7 @@
   "repository": "https://github.com/Zodiase/Resume",
   "dependencies": {
     "@xch/class-names": "^0.1.1",
+    "immutable": "^3.8.2",
     "marked": "^0.3.12",
     "moment": "^2.20.1",
     "react": "^16.2.0",
