@@ -5,24 +5,33 @@ import injectSheet from 'react-jss';
 
 const PageStyles = (theme) => ({
   root: {
-    boxSizing: 'content-box',
-    backgroundColor: 'white',
-    textAlign: 'left',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  header: {
-    flex: '0 0 auto',
-  },
-  body: {
-    flex: '1 1 0',
-  },
-  footer: {
-    flex: '0 0 auto',
+    '&.page': {
+      boxSizing: 'content-box',
+      backgroundColor: 'white',
+      textAlign: 'left',
+      display: 'flex',
+      flexDirection: 'column',
+
+      '& .page__header': {
+        flex: '0 0 auto',
+      },
+      '& .page__body': {
+        flex: '1 1 0',
+        overflow: 'hidden',
+      },
+      '& .page__footer': {
+        flex: '0 0 auto',
+      },
+      '&.page--overflow': {
+        '& .page__body': {
+          boxShadow: `inset rgba(0, 0, 0, 0.16) 0px -${10/16}em ${10/16}em -${10/16}em, inset rgba(0, 0, 0, 0.23) 0px -${10/16}em ${10/16}em -${10/16}em`,
+        },
+      },
+    },
   },
 });
 
-class Page extends React.PureComponent {
+class Page extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     pageNumber: PropTypes.number,
@@ -33,6 +42,32 @@ class Page extends React.PureComponent {
     footer: PropTypes.any,
     children: PropTypes.any,
   };
+
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      isOverflow: false,
+    };
+  }
+
+  componentDidMount () {
+    this.updateOverflowState();
+  }
+
+  componentDidUpdate () {
+    this.updateOverflowState();
+  }
+
+  updateOverflowState () {
+    const isOverflow = this._bodyContainer.scrollHeight > this._bodyContainer.clientHeight;
+    
+    if (this.state.isOverflow !== isOverflow) {
+      this.setState({
+        isOverflow,
+      });
+    }
+  }
 
   render () {
     const {
@@ -63,26 +98,21 @@ class Page extends React.PureComponent {
         className={classNames(
           'page',
           this.props.classes.root,
+          {
+            'page--overflow': this.state.isOverflow,
+          },
           className,
         )}
       >
         <div
-          className={classNames(
-            'page__header',
-            this.props.classes.header,
-          )}
+          className="page__header"
         >{headerElement}</div>
         <div
-          className={classNames(
-            'page__body',
-            this.props.classes.body,
-          )}
+          className="page__body"
+          ref={(ref) => this._bodyContainer = ref}
         >{children}</div>
         <div
-          className={classNames(
-            'page__footer',
-            this.props.classes.footer,
-          )}
+          className="page__footer"
         >{footerElement}</div>
       </div>
     );
