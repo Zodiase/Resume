@@ -29,7 +29,9 @@ const PageStyles = (theme) => ({
       },
       '&.page--overflow': {
         '& .page__body': {
-          boxShadow: `inset rgba(0, 0, 0, 0.16) 0px -${10/16}em ${10/16}em -${10/16}em, inset rgba(0, 0, 0, 0.23) 0px -${10/16}em ${10/16}em -${10/16}em`,
+          '@media screen': {
+            boxShadow: `inset rgba(0, 0, 0, 0.16) 0px -${10/16}em ${10/16}em -${10/16}em, inset rgba(0, 0, 0, 0.23) 0px -${10/16}em ${10/16}em -${10/16}em`,
+          },
         },
       },
     },
