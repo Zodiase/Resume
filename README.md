@@ -9,7 +9,7 @@ Printing the page with **no margin** should yield the exact result as shown on s
 
 ## Motivation
 
-I almost lost track of which copy of my multiple resumes is the most up-to-date. What's worse? They all seemed to have out-dated info. As a programmer, maintaining multiple copies of the same data to me is a big no no! So how about throwing everything into one JSON file and use an app to pick and render whatever I need? Sounds pretty good, right?
+I almost lost track of which copy of my multiple resumes is the most up-to-date. What's worse? They all seemed to have out-dated info. As a programmer, maintaining multiple copies of the same data to me is a big no no! So how about throwing everything into one JSON file and using an app to pick and render whatever I (or other readers) need? Sounds pretty good, right?
 
 ## Version
 
