@@ -1,7 +1,12 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import classNames from '@xch/class-names';
 import injectSheet from 'react-jss';
+
+import {
+  makeArray,
+} from './helpers';
 
 const PageStyles = (theme) => ({
   root: {
@@ -41,6 +46,7 @@ class Page extends React.Component {
     header: PropTypes.any,
     footer: PropTypes.any,
     children: PropTypes.any,
+    onOverflow: PropTypes.func,
   };
 
   constructor (props) {
@@ -49,6 +55,14 @@ class Page extends React.Component {
     this.state = {
       isOverflow: false,
     };
+
+    // @type {Array<HTMLElement>}
+    this._bodyContainerElement = null;
+    /**
+     * Stores references to rendered children.
+     * @type {Array<HTMLElement>}
+     */
+    this._childElementRefs = [];
   }
 
   componentDidMount () {
@@ -59,14 +73,63 @@ class Page extends React.Component {
     this.updateOverflowState();
   }
 
+  get isOverflow () {
+    return this.state.isOverflow;
+  }
+
+  getPageAndChildrenSizings () {
+    return {
+      container: {
+        height: this._bodyContainerElement.clientHeight,
+        width: this._bodyContainerElement.clientWidth,
+      },
+      children: this._childElementRefs.map((childElement) => {
+        return {
+          top: childElement.offsetTop - this._bodyContainerElement.offsetTop,
+          left: childElement.offsetLeft - this._bodyContainerElement.offsetLeft,
+          height: childElement.offsetHeight,
+          width: childElement.offsetWidth,
+        };
+      }),
+    };
+  }
+
   updateOverflowState () {
-    const isOverflow = this._bodyContainer.scrollHeight > this._bodyContainer.clientHeight;
-    
+    const isOverflow = this._bodyContainerElement.scrollHeight > this._bodyContainerElement.clientHeight;
+
     if (this.state.isOverflow !== isOverflow) {
       this.setState({
         isOverflow,
       });
+
+      if (isOverflow && this.props.onOverflow) {
+        // Collection detailed sizing data.
+        const sizings = this.getPageAndChildrenSizings();
+
+        this.props.onOverflow(sizings);
+      }
     }
+  }
+
+  attachSpyOnChildren (children) {
+    if (!children) {
+      return children;
+    }
+
+    const childArray = makeArray(children);
+
+    this._childElementRefs = [];
+
+    return childArray.map((child, index) => {
+      return React.cloneElement(
+        child,
+        {
+          key: index,
+          // Could `ref` be not a HTMLElement?
+          ref: (ref) => this._childElementRefs[index] = ref,
+        },
+      );
+    });
   }
 
   render () {
@@ -93,6 +156,8 @@ class Page extends React.Component {
       }
     });
 
+    const childrenWithSpy = this.attachSpyOnChildren(children);
+
     return (
       <div
         className={classNames(
@@ -109,8 +174,8 @@ class Page extends React.Component {
         >{headerElement}</div>
         <div
           className="page__body"
-          ref={(ref) => this._bodyContainer = ref}
-        >{children}</div>
+          ref={(ref) => this._bodyContainerElement = ref}
+        >{childrenWithSpy}</div>
         <div
           className="page__footer"
         >{footerElement}</div>

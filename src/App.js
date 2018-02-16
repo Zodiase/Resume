@@ -9,7 +9,6 @@ import logo from './logo.svg';
 import './App.css';
 
 import Document from './Document';
-import Page from './Page';
 
 const npmManifest = require('./npmManifest.json');
 const versionUrl = url.resolve(`${npmManifest.repository}/`, `tree/v${npmManifest.version}`);
@@ -26,17 +25,6 @@ const AppStyles = (theme) => ({
     },
   },
   document: {
-    padding: '1px',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-
-    '& > $page': {
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginTop: '2em',
-      marginBottom: '2em',
-      boxShadow: `rgba(0, 0, 0, 0.19) 0px ${10/16}em ${30/16}em, rgba(0, 0, 0, 0.23) 0px ${6/16}em ${10/16}em`,
-      borderRadius: `${2/16}em`,
-    },
     '& .profile__name': {
       fontFamily: theme.sansSerifFontFamily,
       fontSize: '2.5em',
@@ -53,14 +41,12 @@ const AppStyles = (theme) => ({
     },
   },
   page: {
-    boxSizing: 'content-box',
     width: '8.5in',
     height: '11in',
     paddingTop: '0.5in',
     paddingRight: '1in',
     paddingBottom: '0.5in',
     paddingLeft: '1in',
-    backgroundColor: 'white',
     fontFamily: theme.sansSerifFontFamily,
   },
   headerBar: {
@@ -204,76 +190,73 @@ class App extends Component {
         header={this.documentHeader}
         footer={this.documentFooter}
       >
-        <Page>
-          <section id="basic-info">
-            <h1 id="profile-name" className="profile__name">
-              <span className="profile__firstname">{profile.firstName}&nbsp;</span>
-              {profile.middleName && (
-                <span className="profile__middlename">{profile.middleName}&nbsp;</span>
+        <section id="basic-info">
+          <h1 id="profile-name" className="profile__name">
+            <span className="profile__firstname">{profile.firstName}&nbsp;</span>
+            {profile.middleName && (
+              <span className="profile__middlename">{profile.middleName}&nbsp;</span>
+            )}
+            <span className="profile__lastname">{profile.lastName}</span>
+          </h1>
+          <div className="profile__site"><a href={profile.site.url} target="_blank">{profile.site.text}</a></div>
+          <div className="profile__phone">{profile.phone}</div>
+          <div className="profile__email"><a href={`mailto:${profile.email}`}>{profile.email}</a></div>
+        </section>
+
+        {profile.skills && (
+          <section
+            id="skills"
+            className="content-section"
+          >
+            <h2
+              className={classNames(
+                'content-section__title',
+                this.styleClasses.contentSectionTitle,
               )}
-              <span className="profile__lastname">{profile.lastName}</span>
-            </h1>
-            <div className="profile__site"><a href={profile.site.url} target="_blank">{profile.site.text}</a></div>
-            <div className="profile__phone">{profile.phone}</div>
-            <div className="profile__email"><a href={`mailto:${profile.email}`}>{profile.email}</a></div>
+            >Skills</h2>
+
+            <div className="skill-set">
+              <div className="skill-set__title">Web Development</div>
+              {profile.skills.pick(
+                ['Web'],
+                {
+                  excludes: [
+                    'Server',
+                  ],
+                },
+              )}
+            </div>
           </section>
+        )}
 
-          {profile.skills && (
-            <section
-              id="skills"
-              className="content-section"
-            >
-              <h2
-                className={classNames(
-                  'content-section__title',
-                  this.styleClasses.contentSectionTitle,
-                )}
-              >Skills</h2>
+        {profile.experiences && (
+          <section
+            id="experiences"
+            className="content-section"
+          >
+            <h2
+              className={classNames(
+                'content-section__title',
+                this.styleClasses.contentSectionTitle,
+              )}
+            >Experience</h2>
 
-              <div className="skill-set">
-                <div className="skill-set__title">Web Development</div>
-                {profile.skills.pick(
-                  ['Web'],
-                  {
-                    excludes: [
-                      'Server',
-                    ],
-                  },
-                )}
-              </div>
-            </section>
-          )}
+            {profile.experiences.map(this.renderExperienceItem)}
+          </section>
+        )}
 
-          {profile.experiences && (
-            <section
-              id="experiences"
-              className="content-section"
-            >
-              <h2
-                className={classNames(
-                  'content-section__title',
-                  this.styleClasses.contentSectionTitle,
-                )}
-              >Experience</h2>
-
-              {profile.experiences.map(this.renderExperienceItem)}
-            </section>
-          )}
-        </Page>
-        <Page>
-          <div className="App">
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              <h1 className="App-title">Welcome to React</h1>
-            </header>
-            <p className="App-intro">
-              To get started, edit <code>src/App.js</code> and save to reload.
-            </p>
-          </div>
-          <p>
-            Page 2.
+        <div className="App">
+          <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            <h1 className="App-title">Welcome to React</h1>
+          </header>
+          <p className="App-intro">
+            To get started, edit <code>src/App.js</code> and save to reload.
           </p>
-        </Page>
+        </div>
+        <p>
+          Page 2.
+        </p>
       </Document>
     );
   }
