@@ -11,7 +11,7 @@ import {
 const PageStyles = (theme) => ({
   root: {
     '&.page': {
-      boxSizing: 'content-box',
+      boxSizing: 'border-box',
       backgroundColor: 'white',
       textAlign: 'left',
       display: 'flex',
