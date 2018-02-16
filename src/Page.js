@@ -58,6 +58,13 @@ class Page extends React.Component {
       isOverflow: false,
     };
 
+    /**
+     * Since state values are delayed, let's have this cache to represent the most accurate value.
+     * The rendering functions should still refer to the value in state.
+     * @type {boolean}
+     */
+    this._isOverflow = false;
+
     // @type {Array<HTMLElement>}
     this._bodyContainerElement = null;
     /**
@@ -76,14 +83,37 @@ class Page extends React.Component {
   }
 
   get isOverflow () {
-    return this.state.isOverflow;
+    return this._isOverflow;
+  }
+
+  set isOverflow (value) {
+    this._isOverflow = value;
+    this.setState({
+      isOverflow: value,
+    });
+  }
+
+  get contentHeight () {
+    return this._bodyContainerElement ? this._bodyContainerElement.scrollHeight : 0;
+  }
+
+  get bodyContainerHeight () {
+    return this._bodyContainerElement ? this._bodyContainerElement.clientHeight : 0;
+  }
+
+  get bodyContainerWidth () {
+    return this._bodyContainerElement ? this._bodyContainerElement.clientWidth : 0;
   }
 
   getPageAndChildrenSizings () {
+    if (!this._bodyContainerElement || this._childElementRefs.some((v) => !v)) {
+      return null;
+    }
+
     return {
       container: {
-        height: this._bodyContainerElement.clientHeight,
-        width: this._bodyContainerElement.clientWidth,
+        height: this.bodyContainerHeight,
+        width: this.bodyContainerWidth,
       },
       children: this._childElementRefs.map((childElement) => {
         return {
@@ -97,17 +127,21 @@ class Page extends React.Component {
   }
 
   updateOverflowState () {
-    const isOverflow = this._bodyContainerElement.scrollHeight > this._bodyContainerElement.clientHeight;
+    if (!this._bodyContainerElement) {
+      return;
+    }
 
-    if (this.state.isOverflow !== isOverflow) {
-      this.setState({
-        isOverflow,
-      });
+    const isOverflow = this.contentHeight > this.bodyContainerHeight;
 
-      if (isOverflow && this.props.onOverflow) {
-        // Collection detailed sizing data.
-        const sizings = this.getPageAndChildrenSizings();
+    if (this.isOverflow !== isOverflow) {
+      this.isOverflow = isOverflow;
+    }
 
+    if (isOverflow && this.props.onOverflow) {
+      // Collection detailed sizing data.
+      const sizings = this.getPageAndChildrenSizings();
+
+      if (sizings) {
         this.props.onOverflow(sizings);
       }
     }
