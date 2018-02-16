@@ -51,7 +51,7 @@ class Document extends React.Component {
       if (Array.isArray(child)) {
         return [
           ...acc,
-          ...child,
+          ...Document.getChildrenInArray(child),
         ];
       }
 
