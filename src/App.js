@@ -39,6 +39,22 @@ const AppStyles = (theme) => ({
         extend: '_subtleLink',
       },
     },
+    '& .experience__employer + .experience__location::before': {
+      content: '", "',
+    },
+    '& .experience__location + .experience__title::before': {
+      content: '""',
+      display: 'inline-block',
+      width: '0.5em',
+      height: '0',
+      marginLeft: '0.5em',
+      marginRight: '0.5em',
+      marginBottom: '0.3em',
+      borderTop: '0.1em solid',
+    },
+    '& .experience__duties': {
+      fontFamily: theme.serifFontFamily,
+    },
   },
   page: {
     width: '8.5in',
@@ -65,47 +81,6 @@ const AppStyles = (theme) => ({
   },
   sectionTitle: {
     color: theme.primaryColor,
-  },
-  experienceItem: {
-    '&.experience': {
-      display: 'grid',
-      gridTemplateAreas: [[
-        '"employer location title"',
-        '"timespan timespan timespan"',
-        '"duties   duties   duties"',
-      ]],
-      gridTemplateColumns: 'auto auto 1fr',
-
-      '& .experience__employer': {
-        gridArea: 'employer',
-      },
-      '& .experience__location': {
-        gridArea: 'location',
-      },
-      '& .experience__employer + .experience__location::before': {
-        content: '", "',
-      },
-      '& .experience__title': {
-        gridArea: 'title',
-      },
-      '& .experience__location + .experience__title::before': {
-        content: '""',
-        display: 'inline-block',
-        width: '0.5em',
-        height: '0',
-        marginLeft: '0.5em',
-        marginRight: '0.5em',
-        marginBottom: '0.3em',
-        borderTop: '0.1em solid',
-      },
-      '& .experience__timespan': {
-        gridArea: 'timespan',
-      },
-      '& .experience__duties': {
-        gridArea: 'duties',
-        fontFamily: theme.serifFontFamily,
-      },
-    },
   },
 });
 
@@ -156,16 +131,12 @@ class App extends Component {
     ].map((s) => s ? moment(s).format('MMM YYYY') : '');
 
     return (
-      <div
-        key={index}
-        className={classNames(
-          'experience',
-          this.styleClasses.experienceItem,
-        )}
-      >
-        <span className="experience__employer">{employer}</span>
-        <span className="experience__location">{location}</span>
-        <span className="experience__title">{title}</span>
+      <Fragment key={index}>
+        <h3 className="experience__name">
+          <span className="experience__employer">{employer}</span>
+          <span className="experience__location">{location}</span>
+          <span className="experience__title">{title}</span>
+        </h3>
         <div className="experience__timespan">
           <span className="experience__timespan__start">{startDateString}</span>
           <span>&nbsp;-&nbsp;</span>
@@ -175,7 +146,7 @@ class App extends Component {
           className="experience__duties"
           dangerouslySetInnerHTML={{__html: marked(dutyRemarks)}}
         />
-      </div>
+      </Fragment>
     );
   };
 
@@ -213,17 +184,15 @@ class App extends Component {
               )}
             >Skills</h2>
 
-            <div className="skill-set">
-              <div className="skill-set__title">Web Development</div>
-              {profile.skills.pick(
-                ['Web'],
-                {
-                  excludes: [
-                    'Server',
-                  ],
-                },
-              )}
-            </div>
+            <h3 className="skillset-title">Web Development</h3>
+            {profile.skills.pick(
+              ['Web'],
+              {
+                excludes: [
+                  'Server',
+                ],
+              },
+            )}
           </Fragment>
         )}
 
