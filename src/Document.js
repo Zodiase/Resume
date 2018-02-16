@@ -68,6 +68,11 @@ class Document extends React.Component {
       ];
     }, []);
 
+    console.log('Document.getChildrenInArray', {
+      input: children,
+      output: childArray,
+    });
+
     return childArray;
   }
 
@@ -77,6 +82,11 @@ class Document extends React.Component {
     ];
 
     // Debug here to check if children passed to `Page` look normal.
+
+    console.log('Document.getInitialPageWithChildren', {
+      input: children,
+      output: childrensByPage,
+    });
 
     return childrensByPage;
   }
@@ -169,6 +179,21 @@ class Document extends React.Component {
       ...newChildrenInNextPage,
       ...childrenInNextPage,
     ];
+
+    // Debug here to check the result of the pagination.
+
+    console.log('Document#stablizePage', {
+      input: {
+        pageIndex,
+        sizings,
+      },
+      state: {
+        childrensByPage: this.state.childrensByPage,
+      },
+      output: {
+        childrensByPage,
+      },
+    });
 
     const maxStablizeTries = this._childArray.length;
 
