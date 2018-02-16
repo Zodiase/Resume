@@ -41,6 +41,11 @@ class Document extends React.Component {
 
     // Expand React.Fragment.
     childArray = childArray.reduce((acc, child) => {
+      // Ignore falsy values.
+      if (!child) {
+        return acc;
+      }
+
       if (Array.isArray(child)) {
         return [
           ...acc,
