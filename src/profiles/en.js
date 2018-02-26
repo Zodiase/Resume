@@ -16,12 +16,34 @@ const SkillRecord = Record({
   keywords: Set(),
 });
 
-const SkillGroupRecord = Record({
-  name: '',
-  level: '',
-  // @type {Set<SkillRecord>}
-  children: Set(),
-});
+/**
+ * From high to low.
+ * Only use lowercase.
+ */
+const SkillLevels = [
+  'proficient',
+  'knowledgeable',
+];
+
+const compareSkillLevels = (a, b) => {
+  const [
+    aVal, bVal
+  ] = [a, b].map((s) => SkillLevels.indexOf(String(s).toLowerCase()));
+
+  if (aVal !== -1 && bVal !== -1) {
+    return aVal - bVal;
+  }
+
+  if (aVal === -1) {
+    return 1;
+  }
+
+  if (bVal === -1) {
+    return -1;
+  }
+
+  return 0;
+};
 
 const skillOperations = {
   keywordRegEx: /^(.*?)(?:\^(\d))?$/m,
@@ -45,18 +67,19 @@ const skillOperations = {
   /**
    * @return {Set<string>}
    */
-  getSkillNameSet () {
-    const allKeySet = Set(Object.keys(this));
-    const skillNameSet = allKeySet.filter((s) => s[0] !== '_');
+  getSetOfSkillNames () {
+    const setOfAllKeys = Set(Object.keys(this));
+    const setOfSkillNames = setOfAllKeys.filter((s) => s[0] !== '_');
 
-    return skillNameSet;
+    return setOfSkillNames;
   },
   /**
    * @return {Map<string, SkillRecord>}
    */
-  getSkillRecordMap () {
-    const skillNameSet = this.getSkillNameSet();
-    const skillRecordMap = skillNameSet.reduce((acc, key) => {
+  getMapOfSkillRecords () {
+    const setOfSkillNames = this.getSetOfSkillNames();
+    const mapOfSkillRecords = setOfSkillNames
+    .reduce((acc, key) => {
       const value = this[key];
       // @type {Array<SkillKeywordRecord>}
       const keywordRecords = value.keywords
@@ -72,33 +95,33 @@ const skillOperations = {
       );
     }, Map());
 
-    return skillRecordMap;
+    return mapOfSkillRecords;
   },
   /**
    * @param  {Array<string>} includes - keywords to include.
    * @param  {Object} options
    * @param  {Array<string>} options.excludes - Keywords to exclude.
-   * @return {Set<SkillGroupRecord>}
+   * @return {Object<{skills: Array<SkillRecord>}>}
    */
   pick (includes, options = {}) {
     const {
       excludes = [],
     } = options;
 
-    const includedKeywordStringSet = Set(includes);
-    const excludedKeywordStringSet = Set(excludes);
+    const setOfKeywordsToInclude = Set(includes);
+    const setOfKeywordsToExclude = Set(excludes);
 
     // @type {Map<string, SkillRecord>}
-    const allSkillRecordMap = this.getSkillRecordMap();
+    const mapOfAllSkillRecords = this.getMapOfSkillRecords();
 
     // @type {Map<string, SkillRecord>}
-    const pickedSkillRecordMap = allSkillRecordMap
+    const mapOfPickedSkillRecords = mapOfAllSkillRecords
     .filter((skillRecord, skillName) => {
       const skillKeywordRecordSet = skillRecord.keywords;
-      const isExcluded = excludedKeywordStringSet.some((keyword) => {
+      const isExcluded = setOfKeywordsToExclude.some((keyword) => {
         return skillKeywordRecordSet.some((skillKeywordRecord) => skillKeywordRecord.name === keyword);
       });
-      const isIncluded = includedKeywordStringSet.every((keyword) => {
+      const isIncluded = setOfKeywordsToInclude.every((keyword) => {
         return skillKeywordRecordSet.some((skillKeywordRecord) => skillKeywordRecord.name === keyword);
       });
 
@@ -107,28 +130,98 @@ const skillOperations = {
     // Remove keywords in `includes` so they don't affect grouping.
     .mapEntries(([skillName, skillRecord]) => {
       const skillKeywordRecordSet = skillRecord.keywords;
-      const remainingSkillKeywordRecordSet = skillKeywordRecordSet.filter((skillKeywordRecord) => !includedKeywordStringSet.contains(skillKeywordRecord.name));
+      const remainingSkillKeywordRecordSet = skillKeywordRecordSet.filter((skillKeywordRecord) => !setOfKeywordsToInclude.contains(skillKeywordRecord.name));
       const newSkillRecord = skillRecord.set('keywords', remainingSkillKeywordRecordSet);
 
       return [skillName, newSkillRecord];
+    })
+    // Sort by skill.
+    .sort((skillRecordA, skillRecordB) => {
+      const levelCompare = compareSkillLevels(skillRecordA.level, skillRecordB.level);
+
+      if (levelCompare !== 0) {
+        return levelCompare;
+      }
+
+      const nameCompare = String(skillRecordA.name).toLowerCase() > String(skillRecordB.name).toLowerCase();
+
+      return nameCompare;
     });
 
-    const smartGroups = this.smartGroupSkills(pickedSkillRecordMap);
+    console.log('mapOfPickedSkillRecords', mapOfPickedSkillRecords.toJSON());
 
-    return smartGroups;
+    const setOfSmartGroups = this.smartGroupSkills(mapOfPickedSkillRecords);
+
+    const result = setOfSmartGroups.toJSON();
+
+    return result;
   },
   /**
-   * @param  {Map<string, SkillRecord>} skills
-   * @return {Set<SkillGroupRecord>}
+   * @param  {Map<string, SkillRecord>} mapOfSkillRecords
+   * @return {Set<{ name, skills }>}
    */
-  smartGroupSkills (skillRecordMap) {
+  smartGroupSkills (mapOfSkillRecords) {
     /**
      * Step 1, find all potential groups by aggregating keywords in every skill.
+     */
+    let mapOfKeywordGroups = Map();
+
+    mapOfSkillRecords.forEach((skillRecord, skillName) => {
+      skillRecord.keywords.forEach((keywordRecord) => {
+        const keyword = keywordRecord.name;
+
+        if (!mapOfKeywordGroups.has(keyword)) {
+          mapOfKeywordGroups = mapOfKeywordGroups.set(keyword, {
+            potentialSkillCount: 1,
+            skills: [],
+          });
+        } else {
+          mapOfKeywordGroups = mapOfKeywordGroups.update(keyword, (obj) => ({
+            ...obj,
+            potentialSkillCount: obj.potentialSkillCount + 1,
+          }));
+        }
+      });
+    });
+
+    /**
      * Step 2, for each skill, find the best fit group.
      * Step 3, cleaup empty groups.
      * Step 4, sort remaining groups.
      */
-    console.log(skillRecordMap.toJSON());
+    mapOfSkillRecords.forEach((skillRecord, skillName) => {
+      const sortedKeywordRecords = skillRecord.keywords.sort((keywordRecordA, keywordRecordB) => {
+        if (keywordRecordA.priority !== keywordRecordB.priority) {
+          return keywordRecordB.priority - keywordRecordA.priority;
+        }
+
+        const keywordAPopularity = mapOfKeywordGroups.get(keywordRecordA.name).potentialSkillCount;
+        const keywordBPopularity = mapOfKeywordGroups.get(keywordRecordB.name).potentialSkillCount;
+
+        return keywordBPopularity - keywordAPopularity;
+      });
+
+      const bestRepresentingKeyword = sortedKeywordRecords.first().name;
+
+      mapOfKeywordGroups = mapOfKeywordGroups.update(bestRepresentingKeyword, (obj) => ({
+        ...obj,
+        skills: [
+          ...obj.skills,
+          skillRecord,
+        ],
+      }));
+    });
+
+    mapOfKeywordGroups = mapOfKeywordGroups.filter((obj) => obj.skills.length > 0);
+
+    const setOfKeywordGroups = mapOfKeywordGroups
+    .map(({ skills }, name) => ({
+      skills,
+      name,
+    }))
+    .toSet();
+
+    return setOfKeywordGroups;
   },
 };
 

@@ -32,6 +32,28 @@ const AppStyles = (theme) => ({
         extend: '_subtleLink',
       },
     },
+    '& .skill-group': {
+      display: 'inline',
+    },
+    '& .skill-group__items': {
+      display: 'inline',
+      margin: 0,
+      padding: 0,
+      '&::before': {
+        content: '" ("',
+      },
+      '&::after': {
+        content: '") "',
+      },
+    },
+    '& .skill-group__item': {
+      display: 'inline',
+      margin: 0,
+      listStyle: 'none',
+      '&:not(:last-child)::after': {
+        content: '", "',
+      },
+    },
     '& .experience__location': {
       fontSize: '0.7em',
     },
@@ -228,7 +250,26 @@ class App extends Component {
                   'Server',
                 ],
               },
-            )}
+            ).map(({ name: groupName, skills }) => {
+              return (
+                <div
+                  key={groupName}
+                  className="skill-group"
+                >
+                  <span className="skill-group__name">{groupName}</span>
+                  <ul className="skill-group__items">
+                    {skills.map(({ name: skillName }) => {
+                      return (
+                        <li
+                          key={skillName}
+                          className="skill-group__item"
+                        >{skillName}</li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
           </Fragment>
         )}
 
